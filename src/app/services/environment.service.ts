@@ -8,23 +8,26 @@ export class EnvironmentService {
   readonly apiUrl = this.getApiUrl();
 
   private getApiUrl(): string {
-    // Si está definida en el entorno de build, usarla
+    // 1. Primero, verificar si hay una variable de entorno definida
     const envApiUrl = (window as any)['API_URL'];
     if (envApiUrl) {
       return envApiUrl;
     }
 
-    // Si está en Docker (detectar por hostname)
+    // 2. Si está en Docker (detectar por puerto y hostname)
     if (this.isDocker()) {
       return 'http://localhost:3000/api';
     }
 
-    // En producción, asumir que la API está en el mismo dominio con /api
+    // 3. En producción (Vercel), usar variable de entorno o URL hardcoded
+    // TODO: Actualizar esta URL cuando despliegues el backend
     if (this.isProduction()) {
-      return '/api';
+      // Puedes poner aquí la URL de tu backend en Railway/Render
+      // Por ejemplo: 'https://tu-backend.railway.app/api'
+      return window.location.origin + '/api'; // Cambiar después del deploy del backend
     }
 
-    // En desarrollo local, usar localhost
+    // 4. En desarrollo local, usar localhost
     return 'http://localhost:3000/api';
   }
 
@@ -41,5 +44,16 @@ export class EnvironmentService {
 
   get isProductionEnvironment(): boolean {
     return this.isProduction();
+  }
+
+  // Método útil para debugging
+  getEnvironmentInfo(): any {
+    return {
+      apiUrl: this.apiUrl,
+      hostname: window.location.hostname,
+      port: window.location.port,
+      isProduction: this.isProduction(),
+      isDocker: this.isDocker(),
+    };
   }
 }
