@@ -14,13 +14,24 @@ export class EnvironmentService {
       return envApiUrl;
     }
 
+    // Si está en Docker (detectar por hostname)
+    if (this.isDocker()) {
+      return 'http://localhost:3000/api';
+    }
+
     // En producción, asumir que la API está en el mismo dominio con /api
     if (this.isProduction()) {
       return '/api';
     }
 
-    // En desarrollo, usar localhost
+    // En desarrollo local, usar localhost
     return 'http://localhost:3000/api';
+  }
+
+  private isDocker(): boolean {
+    // Detectar si está corriendo en Docker
+    return window.location.port === '4200' 
+        && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
   }
 
   private isProduction(): boolean {
